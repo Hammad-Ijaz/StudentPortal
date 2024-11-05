@@ -144,7 +144,7 @@ namespace WebApiValidation.Controllers
 				_db.SaveChanges();
                 return new JsonResult("Deleted from api end!!");
             }
-			return new JsonResult("Error !! Student Record is not deleted.");
+			return new JsonResult("Error !! Delted for git updation.");
 		}
 		[HttpDelete("Alldel")]
 		public JsonResult Alldel()
