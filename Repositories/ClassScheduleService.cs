@@ -211,6 +211,7 @@ namespace WebApiValidation.Repositories
                 await dbcontext.TeacherCourse.AddAsync(teacherCourse);
                 await dbcontext.SaveChangesAsync();
                 return new TimeTableResponse(true, "Successfully scheduled class.");
+                Console.WriteLine("For git Schedule class console write..");
             }
                 catch (Exception)
             {
