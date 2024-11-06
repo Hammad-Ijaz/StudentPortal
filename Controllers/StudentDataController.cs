@@ -32,7 +32,11 @@ namespace WebApiValidation.Controllers
         [HttpGet("ShowData")]
         public async Task<IActionResult> Show(int Id)
 		{
-			var response = await _userService.ShowDataUser(Id);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var response = await _userService.ShowDataUser(Id,userId!);
+            if (response.student == null || response.user.Id!= userId) {
+				return Forbid("Un-Authorized!!");
+			}
 			return Ok(response);
 		}
 		[HttpGet("SearchStudent")]
@@ -91,13 +95,13 @@ namespace WebApiValidation.Controllers
 			if(id == null) { return new JsonResult("User not found may be id is not valid!!"); }
 			if (id != null)
 			{
-				var student = _db.Studentslist.FirstOrDefault(x => x.Id == id);
-				model.Id = student.Id;
+				var student = _db.Studentslist.FirstOrDefault(x => x.StudentId == id);
+				model.Id = student.StudentId;
 				model.Name = student.Name;
 				model.Contactno = student.Contactno;
 				model.Email = student.Email;
 				model.Password = student.Password;
-                var stds = _db.Studentslist.Where(z => z.Id == student.Id).Select(z => new
+                var stds = _db.Studentslist.Where(z => z.StudentId == student.StudentId).Select(z => new
                 { z.ClassId, z.Class.ClassName }).FirstOrDefault();
                 if (stds != null) {
                     model.ClassIds = stds.ClassId; model.ClassN = stds.ClassName;  }
@@ -118,7 +122,7 @@ namespace WebApiValidation.Controllers
             List<StudentCor> stdcor = new List<StudentCor>();
             if (id != null)
             {
-                std = _db.Studentslist.Include("StudentCourses").FirstOrDefault(x => x.Id == id);
+                std = _db.Studentslist.Include("StudentCourses").FirstOrDefault(x => x.StudentId == id);
 				std.StudentCourses.ToList().ForEach(s => stdcor.Add(s));
                 _db.StudentCourses.RemoveRange(stdcor);
                 _db.SaveChanges();
@@ -132,7 +136,7 @@ namespace WebApiValidation.Controllers
 			List<StudentCor> stdcor = new List<StudentCor>();
 			if (id != null)
 			{
-				std = _db.Studentslist.Include("StudentCourses").FirstOrDefault(x => x.Id == id)!;
+				std = _db.Studentslist.Include("StudentCourses").FirstOrDefault(x => x.StudentId == id)!;
 				std.StudentCourses.ToList().ForEach(s => stdcor.Add(s));
 				_db.StudentCourses.RemoveRange(stdcor);
 			 var  delStd =	 _db.Studentslist.Remove(std);
@@ -186,7 +190,7 @@ namespace WebApiValidation.Controllers
 			var checkStudent = _db.Studentslist.FirstOrDefault(x => x.Email == user.Email);
             if (checkStudent != null)
             {
-                var email = checkStudent.Email; var id = checkStudent.Id;
+                var email = checkStudent.Email; var id = checkStudent.StudentId;
                 return Ok(new { Email = email, StudentId = id });
             }
             return new JsonResult(new {Email = user.Email });

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using WebApiValidation.Contracts;
 using WebApiValidation.DTOs;
 using WebApiValidation.Models;
@@ -12,49 +13,61 @@ namespace WebApiValidation.Repositories
         Microsoft.AspNetCore.Identity.RoleManager<IdentityRole> roleManager,
         ApplicationDbcontext dbcontext) : IStudentInterface
     {
-        public async Task<GetDataResponse> ShowDataUser(int Id)
+        public async Task<GetDataResponse> ShowDataUser(int Id , string UserId)
         {
+            User user = new User();
+            List<StudentViewModel> student = new List<StudentViewModel>();
+            var Studentlisting = await dbcontext.Studentslist.ToListAsync();
+            var AdminExist = await dbcontext.Admin.FirstOrDefaultAsync(x => x.AdminId == Id);
+            var TeacherExist = await dbcontext.Teachers.FirstOrDefaultAsync(x => x.TeacherId == Id);
+            if (AdminExist == null || TeacherExist == null) { return new GetDataResponse(false, "User is not existed.", user,student); }
             try
             {
-                List<StudentViewModel> student = new List<StudentViewModel>();
-                  var users = await dbcontext.Studentslist.ToListAsync();
-                if (users != null && Id == 0)
+                user = await userManager.FindByEmailAsync(AdminExist.Email);
+                var role = await userManager.GetRolesAsync(user);
+                if (AdminExist != null  && user.Id == UserId && role.Contains("Admin"))
                 {
-                    foreach (var user in users)
+                    if (Studentlisting != null)
                     {
-                        StudentViewModel model = new StudentViewModel();
-                        model.Id = user.Id;
-                        model.Name = user.Name;
-                        model.Contactno = user.Contactno;
-                        model.Email = user.Email;
-                        model.Password = user.Password;
-                        var stds = dbcontext.Studentslist.Where(z => z.Id == user.Id).Select(z =>  new
-                                          { z.ClassId , z.Class.ClassName}).FirstOrDefault();
-                        if(stds != null) { 
-                            model.ClassIds = stds.ClassId;  model.ClassN = stds.ClassName; }
-                        student.Add(model);
+                        foreach (var data in Studentlisting)
+                        {
+                            StudentViewModel model = new StudentViewModel();
+                            model.Id = data.StudentId;
+                            model.Name = data.Name;
+                            model.Contactno = data.Contactno;
+                            model.Email = data.Email;
+                            model.Password = data.Password;
+                            var stds = dbcontext.Studentslist.Where(z => z.StudentId == data.StudentId).Select(z => new
+                            { z.ClassId, z.Class.ClassName }).FirstOrDefault();
+                            if (stds != null)
+                            {
+                                model.ClassIds = stds.ClassId; model.ClassN = stds.ClassName;
+                            }
+                            student.Add(model);
+                        }
+                        return new GetDataResponse(true, "Admin", user, student);
                     }
-                    return new GetDataResponse(true, "Admin", student);
                 }
-                else
+                if(TeacherExist != null)
                 {
                     var teacherClass = await dbcontext.ScheduleClass.Where(x => x.TeacherId == Id)
                                      .Select(c => c.Class).FirstOrDefaultAsync();
                     if (teacherClass != null)
                     {
-                        var userss = await dbcontext.Studentslist.Where(x => x.Class.ClassName == teacherClass.ClassName)                                 
+                        user = await userManager.FindByEmailAsync(TeacherExist.Email);
+                        var studentlist = await dbcontext.Studentslist.Where(x => x.Class.ClassName == teacherClass.ClassName)                                 
                                            .ToListAsync();
-                        if (userss != null && userss.Count != 0)
+                        if (studentlist != null && studentlist.Count != 0)
                         {
-                            foreach (var user in userss)
+                            foreach (var data in studentlist)
                             {
                                 StudentViewModel model = new StudentViewModel();
-                                model.Id = user.Id;
-                                model.Name = user.Name;
-                                model.Contactno = user.Contactno;
-                                model.Email = user.Email;
-                                model.Password = user.Password;
-								var stds = dbcontext.Studentslist.Where(z => z.Id == user.Id).Select(z => new
+                                model.Id = data.StudentId;
+                                model.Name = data.Name;
+                                model.Contactno = data.Contactno;
+                                model.Email = data.Email;
+                                model.Password = data.Password;
+								var stds = dbcontext.Studentslist.Where(z => z.StudentId == data.StudentId).Select(z => new
 								{ z.ClassId, z.Class.ClassName }).FirstOrDefault();
 								if (stds != null)
 								{
@@ -62,12 +75,12 @@ namespace WebApiValidation.Repositories
 								}
 								student.Add(model);
 							}
-                            return new GetDataResponse(true, "Teacher", student);
+                            return new GetDataResponse(true, "Teacher", user, student);
                         }
-                        return new GetDataResponse(false, "No Student Registered in this class yet.", student);
+                        return new GetDataResponse(false, "No Student Registered in this class yet.", user, student);
                     }
                 }
-                return new GetDataResponse(false, "Error !! Fetching Student data.", student);
+                return new GetDataResponse(false, "Error !! Fetching Student data.", user, student);
             }
             catch (Exception)
             {
@@ -86,13 +99,13 @@ namespace WebApiValidation.Repositories
                 {
                     StudentViewModel model = new StudentViewModel
                     {
-                        Id = user.Id,
+                        Id = user.StudentId,
                         Name = user.Name,
                         Contactno = user.Contactno,
                         Email = user.Email,
                         Password = user.Password
                     };
-                    var stds = dbcontext.Studentslist.Where(z => z.Id == user.Id).Select(z => new
+                    var stds = dbcontext.Studentslist.Where(z => z.StudentId == user.StudentId).Select(z => new
                     { z.ClassId, z.Class.ClassName }).FirstOrDefault();
                     if (stds != null) {
                             model.ClassIds = stds.ClassId; model.ClassN = stds.ClassName;    }
@@ -125,7 +138,7 @@ namespace WebApiValidation.Repositories
         {
             if (model == null)
                 { return new UpdateUserResponse(false, "Model is empty!!");   }
-            var user = await dbcontext.Studentslist.FirstOrDefaultAsync(x => x.Id ==model.Id);
+            var user = await dbcontext.Studentslist.FirstOrDefaultAsync(x => x.StudentId ==model.Id);
             if (user == null)
                { return new UpdateUserResponse(false, "User not found!!");}
             user.Name = model.Name;
@@ -151,12 +164,12 @@ namespace WebApiValidation.Repositories
             List<StudentViewModel> student = new List<StudentViewModel>();
              if(Id != 0 && Name != null)
             {
-                var users = dbcontext.Studentslist.Where(y => y.Id == Id && y.Name == Name).ToList();
+                var users = dbcontext.Studentslist.Where(y => y.StudentId == Id && y.Name == Name).ToList();
 				foreach(var user in users)
                 {
 					StudentViewModel model = new StudentViewModel
 					{
-						Id = user.Id,
+						Id = user.StudentId,
 						Name = user.Name
 					};
                     student.Add(model);

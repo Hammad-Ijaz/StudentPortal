@@ -68,6 +68,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddScoped<IAccountInterface, AccountService>();
 builder.Services.AddScoped<IStudentInterface, StudentService>();
 builder.Services.AddScoped<IClassScheduleInterface,ClassScheduleService>();
+builder.Services.AddScoped<IFinanceChallanInterface,FinanceService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowOrigins",

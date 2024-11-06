@@ -50,6 +50,16 @@ namespace WebApiValidation.Repositories
                 var adminRole = await roleManager.FindByNameAsync("Admin");
                 if (adminRole == null)
                 {
+                    Admin adminDto = new Admin()
+                    {
+                        AdminId = model.Id,
+                        Name = model.Name,
+                        Contactno = model.Contactno,
+                        Email = model.Email,
+                        Password = model.Password
+                    };
+                    applicationDbcontext.Admin.Add(adminDto);
+                    await applicationDbcontext.SaveChangesAsync();
                     await roleManager.CreateAsync(new IdentityRole("Admin"));
                     await userManager.AddToRoleAsync(newUser, "Admin");
                     return new GeneralResponse(true, "Created Account as an Admin");
@@ -129,7 +139,7 @@ namespace WebApiValidation.Repositories
             if(Createuser.Succeeded) {
                 Studentrec std = new Studentrec()
                 {
-                    Id = studentrec.Id,
+                    StudentId = studentrec.Id,
                     Name = studentrec.Name,
                     ClassId = studentrec.ClassIds,
                     Contactno = studentrec.Contactno,

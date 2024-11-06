@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace WebApiValidation.Migrations
 {
     [DbContext(typeof(ApplicationDbcontext))]
-    partial class ApplicationDbcontextModelSnapshot : ModelSnapshot
+    [Migration("20241108095958_AddChallanFinance")]
+    partial class AddChallanFinance
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -188,7 +191,7 @@ namespace WebApiValidation.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StudentrecStudentId")
+                    b.Property<int?>("StudentrecId")
                         .HasColumnType("int");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -199,7 +202,7 @@ namespace WebApiValidation.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StudentrecStudentId");
+                    b.HasIndex("StudentrecId");
 
                     b.ToTable("Users");
                 });
@@ -334,9 +337,6 @@ namespace WebApiValidation.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FinanceId"));
 
-                    b.Property<int>("ChallanVoucher")
-                        .HasColumnType("int");
-
                     b.Property<int>("Installments")
                         .HasColumnType("int");
 
@@ -439,11 +439,11 @@ namespace WebApiValidation.Migrations
 
             modelBuilder.Entity("WebApiValidation.Models.Studentrec", b =>
                 {
-                    b.Property<int>("StudentId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StudentId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ClassId")
                         .HasColumnType("int");
@@ -466,7 +466,7 @@ namespace WebApiValidation.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("StudentId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ClassId");
 
@@ -533,7 +533,7 @@ namespace WebApiValidation.Migrations
                 {
                     b.HasOne("WebApiValidation.Models.Studentrec", "Studentrec")
                         .WithMany()
-                        .HasForeignKey("StudentrecStudentId");
+                        .HasForeignKey("StudentrecId");
 
                     b.Navigation("Studentrec");
                 });

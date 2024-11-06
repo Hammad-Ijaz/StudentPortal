@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "zsH38fP9tsYcfgzagOHrkGDvbGyIOdzvTM2kEI0dbkDk4jSTpl2UiWgRuk88bX9YL5CeKf+voKLdGToyPWLLeA==",
+  "dgSpecHash": "YMVOcXV6M4PKJQf+HXtcT/FYpw4dt5rsmvcvMW1DPsQPUiOR6YgLlGWEtsR89bz+IQH7BzNXVGY1o0kxA9rqvw==",
   "success": true,
   "projectFilePath": "E:\\Atombitsoffice\\WebApiValidation\\WebApiValidation.csproj",
   "expectedPackageFiles": [
@@ -165,6 +165,7 @@
     "C:\\Users\\hammad\\.nuget\\packages\\nuget.protocol\\6.9.1\\nuget.protocol.6.9.1.nupkg.sha512",
     "C:\\Users\\hammad\\.nuget\\packages\\nuget.versioning\\6.9.1\\nuget.versioning.6.9.1.nupkg.sha512",
     "C:\\Users\\hammad\\.nuget\\packages\\owin\\1.0.0\\owin.1.0.0.nupkg.sha512",
+    "C:\\Users\\hammad\\.nuget\\packages\\questpdf\\2024.10.2\\questpdf.2024.10.2.nupkg.sha512",
     "C:\\Users\\hammad\\.nuget\\packages\\scrutor\\3.3.0\\scrutor.3.3.0.nupkg.sha512",
     "C:\\Users\\hammad\\.nuget\\packages\\swashbuckle.aspnetcore\\6.6.2\\swashbuckle.aspnetcore.6.6.2.nupkg.sha512",
     "C:\\Users\\hammad\\.nuget\\packages\\swashbuckle.aspnetcore.filters\\8.0.2\\swashbuckle.aspnetcore.filters.8.0.2.nupkg.sha512",

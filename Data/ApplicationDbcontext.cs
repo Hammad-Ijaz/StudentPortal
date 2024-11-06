@@ -13,9 +13,13 @@ public class ApplicationDbcontext : IdentityDbContext<User>
         public DbSet<Course> Courserecord { get; set; }
         public DbSet<StudentCor> StudentCourses { get; set; }
         public DbSet<TeacherRegister> Teachers { get; set; }
+        public DbSet<Admin> Admin { get; set; }
         public DbSet<TeacherCourse> TeacherCourse { get; set; }
         public DbSet<Class> Classes { get; set; }
         public DbSet<ScheduleClass> ScheduleClass { get; set; }
+        public DbSet<FinanceDetails> FinanceDetailss {  get; set; } 
+        public DbSet<Challan> Challans {  get; set; } 
+        public DbSet<ChallanFinanceDetail> ChallanFinanceDetails {  get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
         // Ensure Identity tables have primary keys
@@ -26,10 +30,19 @@ public class ApplicationDbcontext : IdentityDbContext<User>
         builder.Entity<IdentityUserToken<string>>()
             .HasKey(t => new { t.UserId, t.LoginProvider, t.Name });
 
+        builder.Entity<Admin>(entity =>
+        {
+            entity.HasKey(k => k.AdminId);
+            entity.Property(k => k.AdminId).ValueGeneratedOnAdd();
+            entity.Property(k => k.Name).IsRequired().HasMaxLength(50);
+            entity.Property(k => k.Contactno).IsRequired().HasMaxLength(12);
+            entity.Property(k => k.Email).IsRequired().HasMaxLength(50);
+            entity.Property(k => k.Password).IsRequired().HasMaxLength(50);
+        });
         builder.Entity<Studentrec>(entity =>
         {
-            entity.HasKey(s => s.Id);
-            entity.Property(x => x.Id).ValueGeneratedOnAdd();
+            entity.HasKey(s => s.StudentId);
+            entity.Property(x => x.StudentId).ValueGeneratedOnAdd();
             entity.Property(c => c.Name).IsRequired().HasMaxLength(50);
             entity.Property(c => c.Contactno).HasMaxLength(20);
             entity.Property(c => c.Email).IsRequired().HasMaxLength(50);
@@ -88,6 +101,47 @@ public class ApplicationDbcontext : IdentityDbContext<User>
                    .WithMany(d => d.ScheduleClass)
                    .HasForeignKey(c => c.TeacherId)
                    .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        builder.Entity<FinanceDetails>(entity =>
+        {
+            entity.HasKey(k => k.FinanceId);
+            entity.Property(k => k.FinanceId).ValueGeneratedOnAdd();
+            entity.Property(x => x.Session).IsRequired().HasMaxLength(30);
+            entity.Property(x => x.Installments);
+            entity.Property(x => x.ChallanVoucher);
+            entity.Property(x => x.TotalAmount).IsRequired().HasColumnType("decimal(18, 2)");
+            entity.Property(x => x.PaidAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(x => x.PaymentDate);
+            entity.Property(x => x.Status).IsRequired().HasMaxLength(30);
+        });
+        builder.Entity<Challan>(entity =>
+        {
+            entity.HasKey(k => k.ChallanId);
+            entity.Property(d => d.ChallanId).ValueGeneratedOnAdd();
+            entity.Property(d => d.CreatedDate).IsRequired();
+            entity.Property(d => d.DueDate).IsRequired();
+            entity.Property(d => d.Amount).IsRequired().HasColumnType("decimal(18, 2)");
+            entity.Property(d => d.Status).HasMaxLength(30);
+            entity.HasOne(s => s.Student)
+                  .WithMany(s => s.Challans)
+                  .HasForeignKey(c => c.StudentId);
+        });
+
+        builder.Entity<ChallanFinanceDetail>(entity =>
+        {
+            entity.HasKey(k => k.ChallanFinanceId);
+            entity.Property(d => d.ChallanFinanceId).ValueGeneratedOnAdd();
+
+             entity.HasOne(d => d.Challan)
+                   .WithMany(p => p.ChallanFinanceDetails)
+                   .HasForeignKey(e => e.ChallanId)
+                   .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(d => d.FinanceDetails)
+                  .WithMany(p => p.ChallanFinanceDetails)
+                  .HasForeignKey(d => d.FinanceId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
         });
         }
 }
