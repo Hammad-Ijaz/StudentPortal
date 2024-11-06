@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 using WebApiValidation.Contracts;
 using WebApiValidation.ViewModels;
@@ -24,7 +25,12 @@ namespace WebApiValidation.Controllers
         [HttpGet("ShowScheduleClasses")]
         public async Task<IActionResult> TimeTableGet(int Id) 
         {
-           var response = await _classSchedule.GetTimeTable(Id);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var response = await _classSchedule.GetTimeTable(Id, userId!);
+            if(response.classes == null || response.user.Id !=  userId)
+            {
+                return Forbid("UnAuthorized!!");
+            }
             return Ok(response);
         }
         [HttpPost("AddScheduleClass")]

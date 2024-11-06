@@ -13,6 +13,7 @@ public class ApplicationDbcontext : IdentityDbContext<User>
         public DbSet<Course> Courserecord { get; set; }
         public DbSet<StudentCor> StudentCourses { get; set; }
         public DbSet<TeacherRegister> Teachers { get; set; }
+        public DbSet<Admin> Admin { get; set; }
         public DbSet<TeacherCourse> TeacherCourse { get; set; }
         public DbSet<Class> Classes { get; set; }
         public DbSet<ScheduleClass> ScheduleClass { get; set; }
@@ -26,6 +27,15 @@ public class ApplicationDbcontext : IdentityDbContext<User>
         builder.Entity<IdentityUserToken<string>>()
             .HasKey(t => new { t.UserId, t.LoginProvider, t.Name });
 
+        builder.Entity<Admin>(entity =>
+        {
+            entity.HasKey(k => k.AdminId);
+            entity.Property(k => k.AdminId).ValueGeneratedOnAdd();
+            entity.Property(k => k.Name).IsRequired().HasMaxLength(50);
+            entity.Property(k => k.Contactno).IsRequired().HasMaxLength(12);
+            entity.Property(k => k.Email).IsRequired().HasMaxLength(50);
+            entity.Property(k => k.Password).IsRequired().HasMaxLength(50);
+        });
         builder.Entity<Studentrec>(entity =>
         {
             entity.HasKey(s => s.Id);

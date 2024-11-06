@@ -11,6 +11,8 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections;
 using WebApiValidation.Contracts;
+using Microsoft.AspNetCore.Identity;
+using WebApiValidation.DTOs;
 namespace WebApiValidation.Controllers
 {
     [Route("api/[controller]")]
@@ -19,46 +21,56 @@ namespace WebApiValidation.Controllers
 	public class AjaxController : ControllerBase
     {
         private readonly ApplicationDbcontext _db;
+        private readonly UserManager<User> userManager;
         private readonly IClassScheduleInterface _classSchedule;
-        public AjaxController(ApplicationDbcontext db , IClassScheduleInterface classSchedule)
+        public AjaxController(ApplicationDbcontext db ,UserManager<User> _user,IClassScheduleInterface classSchedule)
         {
             _db = db;
            _classSchedule = classSchedule;
+            userManager = _user;
         }
         [HttpGet("ShowCourses")]
-		public IEnumerable<CourseViewModel> Show(int Id)
+		public async Task<IEnumerable<CourseViewModel>> Show(int Id)
 		{
             List<CourseViewModel> model = new List<CourseViewModel>();
-			if (Id == 0)
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var user = await userManager.FindByIdAsync(userId);
+            var role = await userManager.GetRolesAsync(user);
+            if (Id == 0)
             {
-				var courses = _db.Courserecord.ToList();
-				if (courses != null && courses.Any())
-				{
-					foreach (var item in courses)
-					{
-						CourseViewModel vm = new CourseViewModel();
-						vm.Course_Id = item.Course_Id;
-						vm.Courses = item.Courses;
-						model.Add(vm);
-					}
-				}
+                var courses = _db.Courserecord.ToList();
+                if (courses != null && courses.Any())
+                {
+                    foreach (var item in courses)
+                    {
+                        CourseViewModel vm = new CourseViewModel();
+                        vm.Course_Id = item.Course_Id;
+                        vm.Courses = item.Courses;
+                        model.Add(vm);
+                    }
+                }
             }
-            else
+            else if (role.Contains("Teacher") || role.Contains("Admin"))
             {  // Student Course
-				model = _db.StudentCourses.Where(p => p.StudentId == Id)
+                model = _db.TeacherCourse.Where(p => p.TeacherId == Id)
+                    .Select(student => new CourseViewModel
+                    {
+                        Course_Id = student.Course_Id,
+                        Courses = student.Course.Courses
+                    }).ToList();
+            }
+            else {  // Teacher Course
+                model = _db.StudentCourses.Where(p => p.StudentId == Id)
                   .Select(student => new CourseViewModel
-			   {
-				   Course_Id = student.Course_Id,
-				   Courses = student.Course.Courses
-			   }).ToList();
-			   // Teacher Course
-      //          model = _db.TeacherCourse.Where(p => p.TeacherId == Id)
-				  //.Select(student => new CourseViewModel
-				  //{
-					 // Course_Id = student.Course_Id,
-					 // Courses = student.Course.Courses
-				  //}).ToList();
-			}
+                  {
+                      Course_Id = student.Course_Id,
+                      Courses = student.Course.Courses
+                  }).ToList();
+            }
+            if (model == null || user.Id != userId)
+            {
+                return (IEnumerable<CourseViewModel>)Forbid("UnAuthorized");
+            }
             return model;
 		}
         [HttpGet("SearchCourse")]
