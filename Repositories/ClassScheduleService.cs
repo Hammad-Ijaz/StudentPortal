@@ -4,25 +4,74 @@ using static WebApiValidation.DTOs.ServiceResponse;
 using WebApiValidation.Models;
 using WebApiValidation.ViewModels;
 using NuGet.Versioning;
+using WebApiValidation.DTOs;
+using Microsoft.AspNet.Identity;
 
 namespace WebApiValidation.Repositories
 {
     public class ClassScheduleService(
+        Microsoft.AspNetCore.Identity.UserManager<User> userManager,
          ApplicationDbcontext dbcontext) : IClassScheduleInterface
     {
-        public async Task<GetTimeTableResponse> GetTimeTable(int Id)
+        public async Task<GetTimeTableResponse> GetTimeTable(int Id, string userId)
         {
+            User user = new User();
+            List<ScheduleClassViewModel> classes = new List<ScheduleClassViewModel>();
+            var ExistingTeacherSchedule = dbcontext.ScheduleClass.FirstOrDefault(x => x.TeacherId == Id);
+            var ListSchedule = await dbcontext.ScheduleClass.OrderBy(x => x.StartDate).Where(x => x.TeacherId == Id).ToListAsync();
+            if (ExistingTeacherSchedule == null || ListSchedule == null){
+                return new GetTimeTableResponse(false, "No Schedule List yet!!", user, classes);}
             try
             {
-                List<ScheduleClassViewModel> classes = new List<ScheduleClassViewModel>();
-                var ExistingTeacherSchedule = dbcontext.ScheduleClass.FirstOrDefault(x => x.TeacherId == Id);
-                if (ExistingTeacherSchedule == null)
+                user = await userManager.FindByIdAsync(userId);
+                var role = await userManager.GetRolesAsync(user);
+               if (userId != null &&role.Contains("Admin"))
                 {
-                    return new GetTimeTableResponse(false, "No Schedule List yet!!", classes);
+                        foreach (var dd in ListSchedule)
+                        {
+                            ScheduleClassViewModel model = new ScheduleClassViewModel
+                            {
+                                Id = dd.Id,
+                                TeacherId = dd.TeacherId,
+                                Days = dd.Days.ToString(),
+                                DurationTime = dd.DurationTime,
+                                StartDate = dd.StartDate.Date,
+                                EndDate = dd.EndDate.Date,
+                                Room = dd.Room
+                            };
+                            var teacherCourses = dbcontext.ScheduleClass
+                                .Where(p => p.TeacherId == Id && p.Course_Id == dd.Course_Id)
+                                .Select(teacher => new
+                                {
+                                    teacher.Course_Id,
+                                    teacher.Course.Courses
+                                }).FirstOrDefault();
+                            if (teacherCourses != null)
+                            {
+                                model.Course_Id = teacherCourses.Course_Id;
+                                model.Coursess = teacherCourses.Courses;
+                            }
+                            var teacherClass = dbcontext.ScheduleClass
+                                .Where(p => p.TeacherId == Id && p.ClassId == dd.ClassId)
+                                .Select(teacher => new
+                                {
+                                    teacher.ClassId,
+                                    teacher.Class.ClassName
+                                }).FirstOrDefault();
+                            if (teacherClass != null)
+                            {
+                                model.ClassId = teacherClass.ClassId;
+                                model.Classess = teacherClass.ClassName;
+                            }
+                            classes.Add(model);
+
+                        return new GetTimeTableResponse(true, "Successfully Schedule list show.", user, classes);
+                    }
                 }
                 else
                 {
-                    var ListSchedule = await dbcontext.ScheduleClass.OrderBy(x => x.StartDate).Where(x => x.TeacherId == Id).ToListAsync();
+                    var ExistingTeacher = dbcontext.Teachers.FirstOrDefault(x => x.TeacherId == Id);
+                    user = await userManager.FindByEmailAsync(ExistingTeacher.Email);
                     if (ListSchedule != null)
                     {
                         foreach (var dd in ListSchedule)
@@ -63,24 +112,24 @@ namespace WebApiValidation.Repositories
                             }
                             classes.Add(model);
                         }
-                        
-                        return new GetTimeTableResponse(true, "Successfully Schedule list show.", classes);
+
+                        return new GetTimeTableResponse(true, "Successfully Schedule list show.", user, classes);
                     }
                 }
-                return new GetTimeTableResponse(true, "No  Schedule list yet.", classes);
+                return new GetTimeTableResponse(true, "No  Schedule list yet.", user, classes);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
         }
-        public async Task<GetTimeTableResponse> GetSearchTimeTable(string Course)
+        public async Task<SearchTimeTableResponse> GetSearchTimeTable(string Course)
         {
             try
             {
                 List<ScheduleClassViewModel> classes = new List<ScheduleClassViewModel>();
                 var exist = dbcontext.Courserecord.FirstOrDefault(x=> x.Courses == Course);
-                if (exist == null) { return new GetTimeTableResponse(false,"No course exist or invalid course name.", classes); }
+                if (exist == null) { return new SearchTimeTableResponse(false,"No course exist or invalid course name.", classes); }
                 var ListSchedule = await dbcontext.ScheduleClass.Where(x => x.Course_Id == exist.Course_Id).ToListAsync();
                 if (ListSchedule != null && ListSchedule.Count != 0)
                 {
@@ -122,9 +171,9 @@ namespace WebApiValidation.Repositories
                         }
                         classes.Add(model);
                     }
-                    return new GetTimeTableResponse(true, "Successfully Schedule list show.", classes);
+                    return new SearchTimeTableResponse(true, "Successfully Schedule list show.", classes);
                 }
-				return new GetTimeTableResponse(false, "No  Schedule list yet.", classes);
+				return new SearchTimeTableResponse(false, "No  Schedule list yet.", classes);
 			}
             catch (Exception ex)
             {

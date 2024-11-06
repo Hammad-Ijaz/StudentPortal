@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using WebApiValidation.Models;
 namespace WebApiValidation.Models
 {
     public class TeacherRegister

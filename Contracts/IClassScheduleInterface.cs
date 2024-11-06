@@ -5,8 +5,8 @@ namespace WebApiValidation.Contracts
 {
     public interface IClassScheduleInterface
     {
-        Task<GetTimeTableResponse> GetTimeTable(int Id); 
-        Task<GetTimeTableResponse> GetSearchTimeTable(string Course); 
+        Task<GetTimeTableResponse> GetTimeTable(int Id , string UserId); 
+        Task<SearchTimeTableResponse> GetSearchTimeTable(string Course); 
         Task<TimeTableResponse> AddTimeTable(AddScheduleClassViewModel model);
     }
 }

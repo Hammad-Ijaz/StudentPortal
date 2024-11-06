@@ -1,8 +1,4 @@
-﻿
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using WebApiValidation.DTOs;
-namespace WebApiValidation.Models
+﻿namespace WebApiValidation.Models
 {
     public class Studentrec
     {

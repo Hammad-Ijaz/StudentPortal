@@ -32,7 +32,11 @@ namespace WebApiValidation.Controllers
         [HttpGet("ShowData")]
         public async Task<IActionResult> Show(int Id)
 		{
-			var response = await _userService.ShowDataUser(Id);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var response = await _userService.ShowDataUser(Id,userId!);
+            if (response.student == null || response.user.Id!= userId) {
+				return Forbid("Un-Authorized!!");
+			}
 			return Ok(response);
 		}
 		[HttpGet("SearchStudent")]
