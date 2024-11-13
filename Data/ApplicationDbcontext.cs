@@ -17,9 +17,10 @@ public class ApplicationDbcontext : IdentityDbContext<User>
         public DbSet<TeacherCourse> TeacherCourse { get; set; }
         public DbSet<Class> Classes { get; set; }
         public DbSet<ScheduleClass> ScheduleClass { get; set; }
-        public DbSet<FinanceDetails> FinanceDetailss {  get; set; } 
-        public DbSet<Challan> Challans {  get; set; } 
-        public DbSet<ChallanFinanceDetail> ChallanFinanceDetails {  get; set; }
+        public DbSet<Installment> Installments {  get; set; }
+        public DbSet<Session> Sessions {  get; set; }
+        public DbSet<FinanceDetails> FinanceDetailss {  get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
         // Ensure Identity tables have primary keys
@@ -103,45 +104,36 @@ public class ApplicationDbcontext : IdentityDbContext<User>
                    .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
+
         builder.Entity<FinanceDetails>(entity =>
         {
             entity.HasKey(k => k.FinanceId);
             entity.Property(k => k.FinanceId).ValueGeneratedOnAdd();
-            entity.Property(x => x.Session).IsRequired().HasMaxLength(30);
             entity.Property(x => x.Installments);
-            entity.Property(x => x.ChallanVoucher);
-            entity.Property(x => x.TotalAmount).IsRequired().HasColumnType("decimal(18, 2)");
-            entity.Property(x => x.PaidAmount).HasColumnType("decimal(18, 2)");
             entity.Property(x => x.PaymentDate);
-            entity.Property(x => x.Status).IsRequired().HasMaxLength(30);
+            entity.Property(x => x.RemainingAmount).HasColumnType("decimal(18, 2)");
         });
-        builder.Entity<Challan>(entity =>
+        builder.Entity<Installment>(entity =>
         {
-            entity.HasKey(k => k.ChallanId);
-            entity.Property(d => d.ChallanId).ValueGeneratedOnAdd();
-            entity.Property(d => d.CreatedDate).IsRequired();
-            entity.Property(d => d.DueDate).IsRequired();
-            entity.Property(d => d.Amount).IsRequired().HasColumnType("decimal(18, 2)");
+            entity.HasKey(k => k.InstallmentId);
+            entity.Property(d => d.InstallmentId).ValueGeneratedOnAdd();
+            entity.Property(d => d.PaymentDate);
+            entity.Property(d => d.Paid).HasColumnType("decimal(18, 2)");
+            entity.Property(d => d.Unpaid).HasColumnType("decimal(18, 2)");
             entity.Property(d => d.Status).HasMaxLength(30);
-            entity.HasOne(s => s.Student)
-                  .WithMany(s => s.Challans)
-                  .HasForeignKey(c => c.StudentId);
         });
 
-        builder.Entity<ChallanFinanceDetail>(entity =>
+        builder.Entity<Session>(entity =>
         {
-            entity.HasKey(k => k.ChallanFinanceId);
-            entity.Property(d => d.ChallanFinanceId).ValueGeneratedOnAdd();
+            entity.HasKey(k => k.SessionId);
+            entity.Property(d => d.SessionId).ValueGeneratedOnAdd();
+            entity.Property(d => d.SessionStart).IsRequired();
+            entity.Property(d => d.SessionEnd).IsRequired();
+            entity.Property(d => d.SessionName).IsRequired();
 
-             entity.HasOne(d => d.Challan)
-                   .WithMany(p => p.ChallanFinanceDetails)
-                   .HasForeignKey(e => e.ChallanId)
-                   .OnDelete(DeleteBehavior.ClientSetNull);
-
-            entity.HasOne(d => d.FinanceDetails)
-                  .WithMany(p => p.ChallanFinanceDetails)
-                  .HasForeignKey(d => d.FinanceId)
-                  .OnDelete(DeleteBehavior.ClientSetNull);
+            entity.HasMany(d => d.FinanceDetails)
+                  .WithOne(d => d.Session)
+                  .HasForeignKey(d => d.SessionId); 
         });
-        }
+    }
 }

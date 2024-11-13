@@ -75,7 +75,7 @@ namespace WebApiValidation.Controllers
 					await _db.Classes.AddAsync(clas);
 					await _db.SaveChangesAsync();
 				}
-				return Ok(new { message = "Already class existed." });
+				return Ok(new { message = "Class Registered!!" });
 			}
 			catch (Exception)
 			{

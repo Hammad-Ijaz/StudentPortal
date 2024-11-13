@@ -50,8 +50,8 @@ namespace WebApiValidation.Controllers
                     }
                 }
             }
-            else if (role.Contains("Teacher") || role.Contains("Admin"))
-            {  // Student Course
+            if (role.Contains("Teacher"))
+            {  // Teacher Course
                 model = _db.TeacherCourse.Where(p => p.TeacherId == Id)
                     .Select(student => new CourseViewModel
                     {
@@ -59,7 +59,7 @@ namespace WebApiValidation.Controllers
                         Courses = student.Course.Courses
                     }).ToList();
             }
-            else {  // Teacher Course
+            else if(Id != 0){  // Student Course
                 model = _db.StudentCourses.Where(p => p.StudentId == Id)
                   .Select(student => new CourseViewModel
                   {

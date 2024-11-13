@@ -70,6 +70,7 @@ namespace WebApiValidation.Repositories
                     {
                         TeacherId = model.Id,
                         Name = model.Name,
+                        JoiningDate = DateTime.Now,
                         Contactno = model.Contactno,
                         Email = model.Email,
                         Password = model.Password
@@ -121,6 +122,23 @@ namespace WebApiValidation.Repositories
             }
                 return new DeleteResponse(false,"No Record Delete of teacher may Id null or no reacord available against this Id;");
         }
+        // Registration Number Sequence 
+        public async Task<string> GenerateRegistrationNumber()
+        {
+            var lastStudent = await applicationDbcontext.Studentslist
+                .OrderByDescending(s => s.RegistrationNumber)
+                .FirstOrDefaultAsync();
+            int nextRegNumber = 1;
+            DateTime currentYear = DateTime.Now;
+            string year = currentYear.ToString("yy");
+            if (lastStudent != null && int.TryParse(lastStudent.RegistrationNumber, out int lastRegNumber))
+            {
+                nextRegNumber = lastRegNumber + 1;
+                return nextRegNumber.ToString();
+            }
+            var regNumber = nextRegNumber.ToString("D4");
+            return year+regNumber;
+        }
         //Add  Student
         public async Task<StudentCreateAccountResponse> StudentCreateAccount(StudentViewModel studentrec)
         {
@@ -141,6 +159,7 @@ namespace WebApiValidation.Repositories
                 {
                     StudentId = studentrec.Id,
                     Name = studentrec.Name,
+                    RegistrationNumber = await GenerateRegistrationNumber(),
                     ClassId = studentrec.ClassIds,
                     Contactno = studentrec.Contactno,
                     Email = studentrec.Email,

@@ -162,8 +162,13 @@ namespace WebApiValidation.Controllers
 				{
 					data.StudentCourses.ToList().ForEach(s => stdcor.Add(s));
 					_db.StudentCourses.RemoveRange(stdcor);
-					_db.Studentslist.Remove(data);
-				}
+                    var delStd = _db.Studentslist.Remove(data);
+                    if (delStd != null)
+                    {
+                        var userStd = _db.Users.FirstOrDefault(x => x.Email == data.Email);
+                        _db.Users.Remove(userStd);
+                    }
+                }
 				_db.SaveChanges();
 			}
             return new JsonResult("Deleted from api end , ALL Student Records!!");

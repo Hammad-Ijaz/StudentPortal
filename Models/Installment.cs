@@ -1,0 +1,11 @@
+﻿namespace WebApiValidation.Models
+{
+    public class Installment
+    {
+        public int InstallmentId { get; set; }
+        public DateTime PaymentDate { get; set; }
+        public decimal Paid {  get; set; }
+        public decimal Unpaid {  get; set; }
+        public string? Status {  get; set; } 
+    }
+}

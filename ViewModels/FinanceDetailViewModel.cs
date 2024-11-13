@@ -1,13 +1,16 @@
-﻿namespace WebApiValidation.ViewModels
+﻿using WebApiValidation.Models;
+
+namespace WebApiValidation.ViewModels
 {
     public class FinanceDetailViewModel
     {
-        public string? Session { get; set; }
+        public int FinanceId { get; set; }
+        public int? SessionId { get; set; }
+        // user self input according to his/her on choice
         public int Installments { get; set; }
-        public int ChallanVoucher {  get; set; }
-        public decimal TotalAmount { get; set; }
-        public decimal PaidAmount { get; set; }
+        public decimal RemainingAmount { get; set; }
+       // public int ChallanVoucher { get; set; }
         public DateTime PaymentDate { get; set; }
-        public string? Status { get; set; }
+        public List<Installment>? Installmentss { get; set; }
     }
 }

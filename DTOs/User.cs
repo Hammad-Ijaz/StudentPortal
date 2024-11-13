@@ -8,6 +8,6 @@ namespace WebApiValidation.DTOs
         public  string? Class {  get; set; } 
         public string? RefreshToken { get; set; }
        public DateTime RefreshTokenExpirytime { get; set; }
-        public virtual  Studentrec? Studentrec { get; set; }
+       
     }
 }

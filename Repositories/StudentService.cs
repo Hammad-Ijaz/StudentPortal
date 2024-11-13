@@ -20,7 +20,7 @@ namespace WebApiValidation.Repositories
             var Studentlisting = await dbcontext.Studentslist.ToListAsync();
             var AdminExist = await dbcontext.Admin.FirstOrDefaultAsync(x => x.AdminId == Id);
             var TeacherExist = await dbcontext.Teachers.FirstOrDefaultAsync(x => x.TeacherId == Id);
-            if (AdminExist == null || TeacherExist == null) { return new GetDataResponse(false, "User is not existed.", user,student); }
+            if (AdminExist == null && TeacherExist == null) { return new GetDataResponse(false, "User is not existed.", user,student); }
             try
             {
                 user = await userManager.FindByEmailAsync(AdminExist.Email);
@@ -34,6 +34,7 @@ namespace WebApiValidation.Repositories
                             StudentViewModel model = new StudentViewModel();
                             model.Id = data.StudentId;
                             model.Name = data.Name;
+                            model.RegistrationNumber = data.RegistrationNumber;
                             model.Contactno = data.Contactno;
                             model.Email = data.Email;
                             model.Password = data.Password;
@@ -63,6 +64,7 @@ namespace WebApiValidation.Repositories
                             {
                                 StudentViewModel model = new StudentViewModel();
                                 model.Id = data.StudentId;
+                                model.RegistrationNumber = data.RegistrationNumber;
                                 model.Name = data.Name;
                                 model.Contactno = data.Contactno;
                                 model.Email = data.Email;

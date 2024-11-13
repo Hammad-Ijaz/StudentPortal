@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace WebApiValidation.Migrations
 {
     [DbContext(typeof(ApplicationDbcontext))]
-    [Migration("20241108114531_AddChallanVoucher")]
-    partial class AddChallanVoucher
+    [Migration("20241113085512_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -191,9 +191,6 @@ namespace WebApiValidation.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("StudentrecId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -201,8 +198,6 @@ namespace WebApiValidation.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("StudentrecId");
 
                     b.ToTable("Users");
                 });
@@ -238,60 +233,6 @@ namespace WebApiValidation.Migrations
                     b.HasKey("AdminId");
 
                     b.ToTable("Admin");
-                });
-
-            modelBuilder.Entity("WebApiValidation.Models.Challan", b =>
-                {
-                    b.Property<int>("ChallanId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChallanId"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Status")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ChallanId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("Challans");
-                });
-
-            modelBuilder.Entity("WebApiValidation.Models.ChallanFinanceDetail", b =>
-                {
-                    b.Property<int>("ChallanFinanceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChallanFinanceId"));
-
-                    b.Property<int>("ChallanId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FinanceId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ChallanFinanceId");
-
-                    b.HasIndex("ChallanId");
-
-                    b.HasIndex("FinanceId");
-
-                    b.ToTable("ChallanFinanceDetails");
                 });
 
             modelBuilder.Entity("WebApiValidation.Models.Class", b =>
@@ -337,34 +278,49 @@ namespace WebApiValidation.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FinanceId"));
 
-                    b.Property<int>("ChallanVoucher")
-                        .HasColumnType("int");
-
                     b.Property<int>("Installments")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("PaidAmount")
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("RemainingAmount")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<int>("SessionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("FinanceId");
+
+                    b.HasIndex("SessionId");
+
+                    b.ToTable("FinanceDetailss");
+                });
+
+            modelBuilder.Entity("WebApiValidation.Models.Installment", b =>
+                {
+                    b.Property<int>("InstallmentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InstallmentId"));
+
+                    b.Property<decimal>("Paid")
                         .HasColumnType("decimal(18, 2)");
 
                     b.Property<DateTime>("PaymentDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Session")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
-                    b.Property<decimal>("TotalAmount")
+                    b.Property<decimal>("Unpaid")
                         .HasColumnType("decimal(18, 2)");
 
-                    b.HasKey("FinanceId");
+                    b.HasKey("InstallmentId");
 
-                    b.ToTable("FinanceDetailss");
+                    b.ToTable("Installments");
                 });
 
             modelBuilder.Entity("WebApiValidation.Models.ScheduleClass", b =>
@@ -417,6 +373,29 @@ namespace WebApiValidation.Migrations
                     b.ToTable("ScheduleClass");
                 });
 
+            modelBuilder.Entity("WebApiValidation.Models.Session", b =>
+                {
+                    b.Property<int>("SessionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SessionId"));
+
+                    b.Property<DateTime>("SessionEnd")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SessionName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("SessionStart")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("SessionId");
+
+                    b.ToTable("Sessions");
+                });
+
             modelBuilder.Entity("WebApiValidation.Models.StudentCor", b =>
                 {
                     b.Property<int>("Id")
@@ -442,11 +421,11 @@ namespace WebApiValidation.Migrations
 
             modelBuilder.Entity("WebApiValidation.Models.Studentrec", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("StudentId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StudentId"));
 
                     b.Property<int>("ClassId")
                         .HasColumnType("int");
@@ -469,7 +448,10 @@ namespace WebApiValidation.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("Id");
+                    b.Property<string>("RegistrationNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("StudentId");
 
                     b.HasIndex("ClassId");
 
@@ -532,41 +514,15 @@ namespace WebApiValidation.Migrations
                     b.ToTable("Teachers");
                 });
 
-            modelBuilder.Entity("WebApiValidation.DTOs.User", b =>
+            modelBuilder.Entity("WebApiValidation.Models.FinanceDetails", b =>
                 {
-                    b.HasOne("WebApiValidation.Models.Studentrec", "Studentrec")
-                        .WithMany()
-                        .HasForeignKey("StudentrecId");
-
-                    b.Navigation("Studentrec");
-                });
-
-            modelBuilder.Entity("WebApiValidation.Models.Challan", b =>
-                {
-                    b.HasOne("WebApiValidation.Models.Studentrec", "Student")
-                        .WithMany("Challans")
-                        .HasForeignKey("StudentId")
+                    b.HasOne("WebApiValidation.Models.Session", "Session")
+                        .WithMany("FinanceDetails")
+                        .HasForeignKey("SessionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Student");
-                });
-
-            modelBuilder.Entity("WebApiValidation.Models.ChallanFinanceDetail", b =>
-                {
-                    b.HasOne("WebApiValidation.Models.Challan", "Challan")
-                        .WithMany("ChallanFinanceDetails")
-                        .HasForeignKey("ChallanId")
-                        .IsRequired();
-
-                    b.HasOne("WebApiValidation.Models.FinanceDetails", "FinanceDetails")
-                        .WithMany("ChallanFinanceDetails")
-                        .HasForeignKey("FinanceId")
-                        .IsRequired();
-
-                    b.Navigation("Challan");
-
-                    b.Navigation("FinanceDetails");
+                    b.Navigation("Session");
                 });
 
             modelBuilder.Entity("WebApiValidation.Models.ScheduleClass", b =>
@@ -640,11 +596,6 @@ namespace WebApiValidation.Migrations
                     b.Navigation("Teacher");
                 });
 
-            modelBuilder.Entity("WebApiValidation.Models.Challan", b =>
-                {
-                    b.Navigation("ChallanFinanceDetails");
-                });
-
             modelBuilder.Entity("WebApiValidation.Models.Class", b =>
                 {
                     b.Navigation("ScheduleClass");
@@ -661,15 +612,13 @@ namespace WebApiValidation.Migrations
                     b.Navigation("TeacherCourses");
                 });
 
-            modelBuilder.Entity("WebApiValidation.Models.FinanceDetails", b =>
+            modelBuilder.Entity("WebApiValidation.Models.Session", b =>
                 {
-                    b.Navigation("ChallanFinanceDetails");
+                    b.Navigation("FinanceDetails");
                 });
 
             modelBuilder.Entity("WebApiValidation.Models.Studentrec", b =>
                 {
-                    b.Navigation("Challans");
-
                     b.Navigation("StudentCourses");
                 });
 

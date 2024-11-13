@@ -64,9 +64,8 @@ namespace WebApiValidation.Repositories
                                 model.Classess = teacherClass.ClassName;
                             }
                             classes.Add(model);
-
-                        return new GetTimeTableResponse(true, "Successfully Schedule list show.", user, classes);
                     }
+                   return new GetTimeTableResponse(true, "Successfully Schedule list show.", user, classes);
                 }
                 else
                 {

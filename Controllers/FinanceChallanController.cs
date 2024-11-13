@@ -20,11 +20,11 @@ namespace WebApiValidation.Controllers
             var response = await  _financeChallanInterface.AddFinance(model);
             return Ok(response);
         }
-        [HttpPost("PostFinanceChallan")]
-        public async Task<IActionResult> PostFinanceChallan(ChallanViewModel model)
+        [HttpGet("PostFinanceChallan")]
+        public async Task<IActionResult> PostFinanceChallan()
         {
-            var response = await _financeChallanInterface.AddFinanceChallan(model);
-            return Ok(model);
+            var response = await _financeChallanInterface.GetFinanceChallan();
+            return Ok(response);
         }
     }
 }
