@@ -17,8 +17,9 @@ public class ApplicationDbcontext : IdentityDbContext<User>
         public DbSet<TeacherCourse> TeacherCourse { get; set; }
         public DbSet<Class> Classes { get; set; }
         public DbSet<ScheduleClass> ScheduleClass { get; set; }
-        public DbSet<Installment> Installments {  get; set; }
-        public DbSet<Session> Sessions {  get; set; }
+     	public DbSet<Session> Sessions { get; set; }
+     	public DbSet<Challan> Challans { get; set; }
+    	public DbSet<Installment> Installments {  get; set; }
         public DbSet<FinanceDetails> FinanceDetailss {  get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -104,8 +105,14 @@ public class ApplicationDbcontext : IdentityDbContext<User>
                    .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
-
-        builder.Entity<FinanceDetails>(entity =>
+		builder.Entity<Challan>(entity =>
+		{
+			entity.HasKey(k => k.ChallanId);
+			entity.Property(k => k.ChallanId).ValueGeneratedOnAdd();
+			entity.Property(k => k.ChallanVoucher).IsRequired().HasMaxLength(50);
+			entity.Property(k => k.ToatalFees).IsRequired().HasColumnType("decimal(18, 2)");
+		});
+		builder.Entity<FinanceDetails>(entity =>
         {
             entity.HasKey(k => k.FinanceId);
             entity.Property(k => k.FinanceId).ValueGeneratedOnAdd();

@@ -6,7 +6,8 @@ namespace WebApiValidation.Contracts
 {
     public interface IFinanceChallanInterface
     {
-        Task<AddFinanceResponse> AddFinance(FinanceDetailViewModel financModel);
-        Task<AddFinanceResponse> GetFinanceChallan();
+        Task<string> GenerateChallanNumber();
+
+		Task<AddFinanceResponse> GetFinanceChallan(string userId);
     }
 }

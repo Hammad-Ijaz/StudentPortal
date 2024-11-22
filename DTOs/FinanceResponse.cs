@@ -1,4 +1,6 @@
-﻿namespace WebApiValidation.DTOs
+﻿using WebApiValidation.ViewModels;
+
+namespace WebApiValidation.DTOs
 {
     public class FinanceResponse
     {

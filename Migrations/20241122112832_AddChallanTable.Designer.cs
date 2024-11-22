@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace WebApiValidation.Migrations
 {
     [DbContext(typeof(ApplicationDbcontext))]
-    partial class ApplicationDbcontextModelSnapshot : ModelSnapshot
+    [Migration("20241122112832_AddChallanTable")]
+    partial class AddChallanTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -240,6 +243,9 @@ namespace WebApiValidation.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChallanId"));
 
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18, 2)");
+
                     b.Property<string>("ChallanVoucher")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -250,9 +256,6 @@ namespace WebApiValidation.Migrations
 
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<decimal>("ToatalFees")
-                        .HasColumnType("decimal(18, 2)");
 
                     b.HasKey("ChallanId");
 
