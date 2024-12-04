@@ -23,9 +23,11 @@ namespace WebApiValidation.Repositories
             if (AdminExist == null && TeacherExist == null) { return new GetDataResponse(false, "User is not existed.", user,student); }
             try
             {
-                user = await userManager.FindByEmailAsync(AdminExist.Email);
-                var role = await userManager.GetRolesAsync(user);
-                if (AdminExist != null  && user.Id == UserId && role.Contains("Admin"))
+                if(AdminExist != null) {
+					user = await userManager.FindByEmailAsync(AdminExist.Email);
+				}
+				var role = await userManager.GetRolesAsync(user);
+				if (AdminExist != null  && user.Id == UserId && role.Contains("Admin"))
                 {
                     if (Studentlisting != null)
                     {
@@ -53,14 +55,17 @@ namespace WebApiValidation.Repositories
                 {
                     var teacherClass = await dbcontext.ScheduleClass.Where(x => x.TeacherId == Id)
                                      .Select(c => c.Class).FirstOrDefaultAsync();
-                    if (teacherClass != null)
+					var teacherCourse = await dbcontext.ScheduleClass.Where(x => x.TeacherId == Id)
+									.Select(c => c.Course).FirstOrDefaultAsync();
+					if (teacherClass != null && teacherCourse != null)
                     {
                         user = await userManager.FindByEmailAsync(TeacherExist.Email);
-                        var studentlist = await dbcontext.Studentslist.Where(x => x.Class.ClassName == teacherClass.ClassName)                                 
-                                           .ToListAsync();
-                        if (studentlist != null && studentlist.Count != 0)
+						var studentlist = await dbcontext.Studentslist
+                            .Where(x => x.StudentCourses.Any(c => c.Course.Courses == teacherCourse.Courses))
+	                       .ToListAsync();
+						if ( studentlist != null  && studentlist.Count != 0)
                         {
-                            foreach (var data in studentlist)
+                        foreach (var data in studentlist)
                             {
                                 StudentViewModel model = new StudentViewModel();
                                 model.Id = data.StudentId;
@@ -89,13 +94,13 @@ namespace WebApiValidation.Repositories
                 throw;
             }
         }
-        public async Task<SearchStdResponse> SearchUserData(string Name,string Class)
+        public async Task<SearchStdResponse> SearchUserData(string RegistrationNo)
         {
             List<StudentViewModel> student = new List<StudentViewModel>();
-            if (Name != null || Class != null)
+            if (RegistrationNo != null)
             {
                 var SearchStudents = await dbcontext.Studentslist
-                    .Where(s => s.Name == Name && s.Class.ClassName == Class)
+                    .Where(s => s.RegistrationNumber == RegistrationNo)
                     .ToListAsync();
                 foreach (var user in SearchStudents)
                 {
@@ -114,7 +119,7 @@ namespace WebApiValidation.Repositories
                         student.Add(model);
                 }
             }
-                    return new SearchStdResponse(Name, Class, student);
+                    return new SearchStdResponse( RegistrationNo, student);
         }
         public async Task<GetDataTeacherResponse> ShowDataTeacher()
         {

@@ -6,7 +6,7 @@ namespace WebApiValidation.Contracts
     public interface IStudentInterface
     {
         Task<GetDataResponse> ShowDataUser(int Id , string UserId); 
-        Task<SearchStdResponse> SearchUserData(string Name, string Class); 
+        Task<SearchStdResponse> SearchUserData(string RegistrationNo); 
         Task<SearchReportStudentResponse> SearchQuizAssignmentStudent(int Id,string Name); 
         Task<GetDataTeacherResponse> ShowDataTeacher();
         Task<UpdateUserResponse> UpdateAccount(StudentViewModel model);

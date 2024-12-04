@@ -8,7 +8,7 @@ namespace WebApiValidation.DTOs
         public record class GeneralResponse(bool Flag, string Message);
         public record class StudentCreateAccountResponse(bool Flag, string Message);
         public record class GetDataResponse(bool Flag, string Role, User user  ,List<StudentViewModel> student);
-        public record class SearchStdResponse(string Name, string Class , List<StudentViewModel> student);
+        public record class SearchStdResponse(string Class , List<StudentViewModel> student);
         public record class SearchReportStudentResponse(List<StudentViewModel> student);
         public record class GetDataTeacherResponse(bool Flag, string Role,List<TeacherViewModel> teacher);
         public  record class UpdateUserResponse(bool Flag, string Message);

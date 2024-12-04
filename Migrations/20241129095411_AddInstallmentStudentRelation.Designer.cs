@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace WebApiValidation.Migrations
 {
     [DbContext(typeof(ApplicationDbcontext))]
-    partial class ApplicationDbcontextModelSnapshot : ModelSnapshot
+    [Migration("20241129095411_AddInstallmentStudentRelation")]
+    partial class AddInstallmentStudentRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -232,38 +235,6 @@ namespace WebApiValidation.Migrations
                     b.ToTable("Admin");
                 });
 
-            modelBuilder.Entity("WebApiValidation.Models.Attendance", b =>
-                {
-                    b.Property<int>("AttendanceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AttendanceId"));
-
-                    b.Property<DateTime>("AttendanceDate")
-                        .HasMaxLength(50)
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("AttendanceStatus")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AttendanceId");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("Attendances");
-                });
-
             modelBuilder.Entity("WebApiValidation.Models.Challan", b =>
                 {
                     b.Property<int>("ChallanId")
@@ -283,15 +254,10 @@ namespace WebApiValidation.Migrations
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("ToatalFees")
                         .HasColumnType("decimal(18, 2)");
 
                     b.HasKey("ChallanId");
-
-                    b.HasIndex("StudentId");
 
                     b.ToTable("Challans");
                 });
@@ -583,36 +549,6 @@ namespace WebApiValidation.Migrations
                     b.ToTable("Teachers");
                 });
 
-            modelBuilder.Entity("WebApiValidation.Models.Attendance", b =>
-                {
-                    b.HasOne("WebApiValidation.Models.Course", "Course")
-                        .WithMany()
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WebApiValidation.Models.Studentrec", "Students")
-                        .WithMany("StudentAttendances")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("Students");
-                });
-
-            modelBuilder.Entity("WebApiValidation.Models.Challan", b =>
-                {
-                    b.HasOne("WebApiValidation.Models.Studentrec", "Student")
-                        .WithMany("StudentChallans")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Student");
-                });
-
             modelBuilder.Entity("WebApiValidation.Models.FinanceDetails", b =>
                 {
                     b.HasOne("WebApiValidation.Models.Session", "Session")
@@ -729,10 +665,6 @@ namespace WebApiValidation.Migrations
 
             modelBuilder.Entity("WebApiValidation.Models.Studentrec", b =>
                 {
-                    b.Navigation("StudentAttendances");
-
-                    b.Navigation("StudentChallans");
-
                     b.Navigation("StudentCourses");
 
                     b.Navigation("StudentInstallments");

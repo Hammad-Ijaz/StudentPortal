@@ -21,6 +21,7 @@ public class ApplicationDbcontext : IdentityDbContext<User>
      	public DbSet<Challan> Challans { get; set; }
     	public DbSet<Installment> Installments {  get; set; }
         public DbSet<FinanceDetails> FinanceDetailss {  get; set; }
+        public DbSet<Attendance> Attendances {  get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -52,6 +53,9 @@ public class ApplicationDbcontext : IdentityDbContext<User>
             entity.HasOne(c => c.Class)
                   .WithMany(d => d.Students)
                   .HasForeignKey(c => c.ClassId);
+            entity.HasMany(c => c.StudentChallans)
+                  .WithOne(s => s.Student)
+                  .HasForeignKey(k => k.StudentId);
         });
         builder.Entity<Class>(entity => {
             entity.HasKey(s => s.ClassId);
@@ -105,12 +109,27 @@ public class ApplicationDbcontext : IdentityDbContext<User>
                    .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
+        builder.Entity<Attendance>(entity =>
+        {
+            entity.HasKey(k => k.AttendanceId);
+			entity.Property(x => x.AttendanceId).ValueGeneratedOnAdd();
+            entity.Property(m => m.AttendanceStatus).IsRequired().HasMaxLength(50);
+            entity.Property(m => m.AttendanceDate).HasMaxLength(50);
+            entity.HasOne(s => s.Students)
+                  .WithMany(a => a.StudentAttendances)
+                  .HasForeignKey(k => k.StudentId);
+		});
+
 		builder.Entity<Challan>(entity =>
 		{
 			entity.HasKey(k => k.ChallanId);
 			entity.Property(k => k.ChallanId).ValueGeneratedOnAdd();
 			entity.Property(k => k.ChallanVoucher).IsRequired().HasMaxLength(50);
 			entity.Property(k => k.ToatalFees).IsRequired().HasColumnType("decimal(18, 2)");
+            entity.HasOne(s => s.Student)
+                   .WithMany(c => c.StudentChallans)
+                   .HasForeignKey(k => k.StudentId);
+
 		});
 		builder.Entity<FinanceDetails>(entity =>
         {
@@ -128,6 +147,9 @@ public class ApplicationDbcontext : IdentityDbContext<User>
             entity.Property(d => d.Paid).HasColumnType("decimal(18, 2)");
             entity.Property(d => d.Unpaid).HasColumnType("decimal(18, 2)");
             entity.Property(d => d.Status).HasMaxLength(30);
+            entity.HasOne(s => s.Student)
+                  .WithMany(c => c.StudentInstallments)
+                  .HasForeignKey(k => k.StudentId);
         });
 
         builder.Entity<Session>(entity =>

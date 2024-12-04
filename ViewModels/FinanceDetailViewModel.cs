@@ -16,7 +16,7 @@ namespace WebApiValidation.ViewModels
     public class InstallmentViewModel
     {
         public int InstallmentId { get; set; }
-        // user self input according to his/her on choice
+        public int StudentId { get; set; }
         public decimal Paid { get; set; }
         public decimal Unpaid { get; set; }
         public string? Status { get; set; } 

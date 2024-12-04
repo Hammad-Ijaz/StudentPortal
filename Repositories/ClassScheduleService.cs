@@ -182,9 +182,7 @@ namespace WebApiValidation.Repositories
 		public async Task<TimeTableResponse> AddTimeTable(AddScheduleClassViewModel model)
         {
             if (model == null)
-            {
-                return new TimeTableResponse(false, "Failed! No schedule class occurred.");
-            }
+            {   return new TimeTableResponse(false, "Failed! No schedule class occurred.");   }
             var checkTeacherExist = await dbcontext.Teachers.FirstOrDefaultAsync(x => x.TeacherId == model.TeacherId);
             if (checkTeacherExist == null) { return new TimeTableResponse(false, "Teacher is not existed."); }
             try
@@ -236,30 +234,58 @@ namespace WebApiValidation.Repositories
                                 teacherCourse.TeacherId = model.TeacherId;
                             }
                         }
-                        var checkClass = dbcontext.ScheduleClass.FirstOrDefault(c =>
-                          c.ClassId == model.ClassId && c.DurationTime == model.DurationTime);
-                    if(checkClass != null)
-                        {
-                            if (checkClass.ClassId == model.ClassId && checkClass.Course_Id == model.Course_Id && checkClass.TeacherId == model.TeacherId && checkClass.StartDate == model.StartDate)
-                            { return new TimeTableResponse(false, "Someone teacher already teaching this course to this class."); }
-                            else if (checkClass.ClassId == model.ClassId && checkClass.DurationTime == model.DurationTime && checkClass.StartDate == model.StartDate)
-                            { return new TimeTableResponse(false, "Sorry, already class on that time."); }
-                            else if (checkClass.ClassId == model.ClassId && checkClass.DurationTime == model.DurationTime &&
-                                      checkClass.StartDate == model.StartDate && checkClass.EndDate == model.EndDate)
-                            { return new TimeTableResponse(false, "Sorry, already class on that date."); }
-                            else if (checkClass.DurationTime == model.DurationTime && checkClass.StartDate == model.StartDate &&
-                                checkClass.Room == model.Room) {
-                                return new TimeTableResponse(false,"Sorry ,Room is unavailable."+currentDate);
+						for (int i = 0; i < 2; i++)
+						{
+							var checkClass = await dbcontext.ScheduleClass
+								.Where(c => c.Days == currentDate.DayOfWeek && c.StartDate == currentDate
+										 && c.Room == model.Room)
+								.FirstOrDefaultAsync();
+                            if(model.DurationTime.Count < 1)
+                            {
+                                model.DurationTime[i] = model.DurationTime[1 - i];
                             }
-                        }
-                        await dbcontext.ScheduleClass.AddAsync(scheduleClass);
-                    }
-                    currentDate = currentDate.AddDays(1);
+							if (checkClass != null)
+							{
+								var checkDuration = checkClass.DurationTime[i];
+								if (checkClass.ClassId == model.ClassId
+									&& checkClass.Course_Id == model.Course_Id
+									|| checkClass.TeacherId == model.TeacherId
+									&& checkClass.StartDate == currentDate)
+								{
+									return new TimeTableResponse(false, "A teacher is already teaching this course to this class.");
+								}
+								if (checkClass.ClassId == model.ClassId
+									&& checkDuration == model.DurationTime[i]
+									&& checkClass.StartDate == currentDate)
+								{
+									return new TimeTableResponse(false, "Sorry, a class is already scheduled at that time.");
+								}
+								if (checkClass.ClassId == model.ClassId
+									&& checkDuration== model.DurationTime[i]
+									&& checkClass.Days == currentDate.DayOfWeek
+									&& checkClass.StartDate == currentDate
+									&& checkClass.EndDate == model.EndDate)
+								{
+									return new TimeTableResponse(false, "Sorry, a class is already scheduled on those dates.");
+								}
+								if (checkDuration == model.DurationTime[i]
+									&& checkClass.StartDate == currentDate
+									&& checkClass.Room == model.Room)
+								{
+									return new TimeTableResponse(false, "Sorry, the room is unavailable at the specified time: " + currentDate);
+								}
+							}
+							var dd = model.DurationTime.Count - 1;
+						}
+						       await dbcontext.ScheduleClass.AddAsync(scheduleClass);
+					}
+					currentDate = currentDate.AddDays(1);
                 }
-                await dbcontext.TeacherCourse.AddAsync(teacherCourse);
+                var verifyCourse = await dbcontext.TeacherCourse.FirstOrDefaultAsync(x => x.TeacherId == model.TeacherId && x.Course_Id == model.Course_Id);
+               if(verifyCourse == null)
+				      { await dbcontext.TeacherCourse.AddAsync(teacherCourse); }
                 await dbcontext.SaveChangesAsync();
                 return new TimeTableResponse(true, "Successfully scheduled class.");
-                Console.WriteLine("For git Schedule class console write..");
             }
                 catch (Exception)
             {

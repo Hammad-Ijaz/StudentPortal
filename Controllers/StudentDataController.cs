@@ -40,9 +40,9 @@ namespace WebApiValidation.Controllers
 			return Ok(response);
 		}
 		[HttpGet("SearchStudent")]
-		public async Task<IActionResult> Search(string Name , string Class )
+		public async Task<IActionResult> Search(string RegistrationNo )
 		{
-			var searchResp = await _userService.SearchUserData(Name,Class);
+			var searchResp = await _userService.SearchUserData(RegistrationNo);
 			return Ok(searchResp);
 		}
 		[HttpGet("SearchQuizAssignmentStd")]
