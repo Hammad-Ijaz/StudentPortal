@@ -9,6 +9,8 @@ namespace WebApiValidation.Models
         {
             StudentCourses = new HashSet<StudentCor>();
             ScheduleClass = new HashSet<ScheduleClass>();
+            CourseFiles = new HashSet<UploadFileandRetrieve>();
+            StudentInternalMarks = new HashSet<InternalMarks>();
         }
         [Key]
         public int Course_Id { get; set; }
@@ -18,7 +20,8 @@ namespace WebApiValidation.Models
         public virtual ICollection<StudentCor> StudentCourses { get; set; }
         public virtual ICollection<TeacherCourse> TeacherCourses { get; set; }
         public virtual ICollection<ScheduleClass>? ScheduleClass { get; set; }
-
+        public virtual ICollection<UploadFileandRetrieve>? CourseFiles { get; set; }
+        public virtual ICollection<InternalMarks>? StudentInternalMarks { get; set; }
 
     }
 }

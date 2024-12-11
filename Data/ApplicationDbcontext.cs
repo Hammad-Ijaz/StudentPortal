@@ -22,6 +22,8 @@ public class ApplicationDbcontext : IdentityDbContext<User>
     	public DbSet<Installment> Installments {  get; set; }
         public DbSet<FinanceDetails> FinanceDetailss {  get; set; }
         public DbSet<Attendance> Attendances {  get; set; }
+        public DbSet<UploadFileandRetrieve> FileRecords {  get; set; }
+        public DbSet<InternalMarks> InternalMarks {  get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -120,7 +122,38 @@ public class ApplicationDbcontext : IdentityDbContext<User>
                   .HasForeignKey(k => k.StudentId);
 		});
 
-		builder.Entity<Challan>(entity =>
+        builder.Entity<UploadFileandRetrieve>(entity =>
+        {
+            entity.HasKey(k => k.FileId);
+            entity.Property(x => x.FileId).ValueGeneratedOnAdd();
+            entity.Property(x => x.FileContent).IsRequired();
+            entity.Property(x => x.ContentType).IsRequired();
+            entity.HasOne(c => c.Course)
+                  .WithMany(f => f.CourseFiles)
+                  .HasForeignKey(k => k.Course_Id);
+        });
+
+        builder.Entity<InternalMarks>(entity =>
+        {
+            entity.HasKey(k => k.MarksId);
+            entity.Property(x => x.MarksId).ValueGeneratedOnAdd();
+            entity.Property(x => x.TotalMarks);
+            entity.Property(x => x.ObtainedMarks);
+            entity.Property(x => x.TotalResult);
+            entity.Property(x => x.TakingDate);
+            entity.Property(x => x.MarkStatus).IsRequired();
+            entity.HasOne(c => c.Student)
+                 .WithMany(f => f.StudentInternalMarks)
+                 .HasForeignKey(k => k.StudentId);
+            entity.HasOne(c => c.Class)
+                 .WithMany(f => f.StudentInternalMarks)
+                 .HasForeignKey(k => k.ClassId);
+            entity.HasOne(c => c.Course)
+                  .WithMany(f => f.StudentInternalMarks)
+                  .HasForeignKey(k => k.Course_Id);
+        });
+
+        builder.Entity<Challan>(entity =>
 		{
 			entity.HasKey(k => k.ChallanId);
 			entity.Property(k => k.ChallanId).ValueGeneratedOnAdd();

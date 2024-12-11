@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace WebApiValidation.Migrations
 {
     [DbContext(typeof(ApplicationDbcontext))]
-    partial class ApplicationDbcontextModelSnapshot : ModelSnapshot
+    [Migration("20241211073342_AddCourseinFileTable")]
+    partial class AddCourseinFileTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -394,50 +397,6 @@ namespace WebApiValidation.Migrations
                     b.ToTable("Installments");
                 });
 
-            modelBuilder.Entity("WebApiValidation.Models.InternalMarks", b =>
-                {
-                    b.Property<int>("MarksId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MarksId"));
-
-                    b.Property<int>("ClassId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Course_Id")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MarkStatus")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float>("ObtainedMarks")
-                        .HasColumnType("real");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("TakingDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<float>("TotalMarks")
-                        .HasColumnType("real");
-
-                    b.Property<float>("TotalResult")
-                        .HasColumnType("real");
-
-                    b.HasKey("MarksId");
-
-                    b.HasIndex("ClassId");
-
-                    b.HasIndex("Course_Id");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("InternalMarks");
-                });
-
             modelBuilder.Entity("WebApiValidation.Models.ScheduleClass", b =>
                 {
                     b.Property<int>("Id")
@@ -721,33 +680,6 @@ namespace WebApiValidation.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("WebApiValidation.Models.InternalMarks", b =>
-                {
-                    b.HasOne("WebApiValidation.Models.Class", "Class")
-                        .WithMany("StudentInternalMarks")
-                        .HasForeignKey("ClassId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WebApiValidation.Models.Course", "Course")
-                        .WithMany("StudentInternalMarks")
-                        .HasForeignKey("Course_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WebApiValidation.Models.Studentrec", "Student")
-                        .WithMany("StudentInternalMarks")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Class");
-
-                    b.Navigation("Course");
-
-                    b.Navigation("Student");
-                });
-
             modelBuilder.Entity("WebApiValidation.Models.ScheduleClass", b =>
                 {
                     b.HasOne("WebApiValidation.Models.Class", "Class")
@@ -834,8 +766,6 @@ namespace WebApiValidation.Migrations
                 {
                     b.Navigation("ScheduleClass");
 
-                    b.Navigation("StudentInternalMarks");
-
                     b.Navigation("Students");
                 });
 
@@ -846,8 +776,6 @@ namespace WebApiValidation.Migrations
                     b.Navigation("ScheduleClass");
 
                     b.Navigation("StudentCourses");
-
-                    b.Navigation("StudentInternalMarks");
 
                     b.Navigation("TeacherCourses");
                 });
@@ -866,8 +794,6 @@ namespace WebApiValidation.Migrations
                     b.Navigation("StudentCourses");
 
                     b.Navigation("StudentInstallments");
-
-                    b.Navigation("StudentInternalMarks");
                 });
 
             modelBuilder.Entity("WebApiValidation.Models.TeacherRegister", b =>

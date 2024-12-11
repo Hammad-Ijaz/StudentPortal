@@ -8,6 +8,7 @@
             StudentInstallments = new HashSet<Installment>();
             StudentChallans = new HashSet<Challan>();
             StudentAttendances = new HashSet<Attendance>();
+            StudentInternalMarks = new HashSet<InternalMarks>();
         }
         public int StudentId { get; set; }
         public string? Name { get; set; }
@@ -21,5 +22,6 @@
         public virtual ICollection<Installment> StudentInstallments { get; set; }
         public virtual ICollection<Challan> StudentChallans { get; set; }
         public virtual ICollection<Attendance> StudentAttendances { get; set; }
+        public virtual ICollection<InternalMarks> StudentInternalMarks { get; set; }
     }
 }

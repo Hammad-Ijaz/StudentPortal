@@ -13,6 +13,7 @@ using System.Collections;
 using WebApiValidation.Contracts;
 using Microsoft.AspNetCore.Identity;
 using WebApiValidation.DTOs;
+using iText.Commons.Actions.Contexts;
 namespace WebApiValidation.Controllers
 {
     [Route("api/[controller]")]
@@ -50,7 +51,7 @@ namespace WebApiValidation.Controllers
                     }
                 }
             }
-            if (role.Contains("Teacher"))
+            if (role.Contains("Teacher") || role.Contains("Admin"))
             {  // Teacher Course
                 model = _db.TeacherCourse.Where(p => p.TeacherId == Id)
                     .Select(student => new CourseViewModel
@@ -241,6 +242,48 @@ namespace WebApiValidation.Controllers
 			}
 			return new JsonResult("Drop Successfully from API!!");
 		}
+        [AllowAnonymous]
+        [HttpPost("UploadFile")]
+        public async Task<IActionResult> UploadFiles(IFormFile file , int Courseid)
+        {
+            if (file == null || file.Length == 0 || Courseid == 0)
+                return BadRequest("File not provided");
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.CopyToAsync(memoryStream);
+                var fileData = memoryStream.ToArray();
+                var fileRecord = new  UploadFileandRetrieve
+                {
+                    Course_Id = Courseid,
+                    FileName = file.FileName,
+                    ContentType = file.ContentType,
+                    FileContent = fileData
+                };
+                _db.FileRecords.Add(fileRecord);
+                await _db.SaveChangesAsync();
+            }
 
+            return Ok(new { file.FileName, Message = "File uploaded successfully." });
+        }
+        [AllowAnonymous]
+        [HttpGet("RetrieveFile")]
+        public async Task<IActionResult> RetrieveFile(int courseid)
+        {
+            var getFileDb = await _db.FileRecords.Where(x => x.Course_Id == courseid).ToListAsync();
+            if (getFileDb == null) { return NotFound(); }
+            return Ok(getFileDb);
+        }
     }
 }
+
+// Save file to the server (optional)
+//var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "UploadedFiles");
+//if (!Directory.Exists(folderPath))
+//    Directory.CreateDirectory(folderPath);
+
+//var filePath = Path.Combine(folderPath, file.FileName);
+
+//using (var stream = new FileStream(filePath, FileMode.Create))
+//{
+//    await file.CopyToAsync(stream);
+//}
